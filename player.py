@@ -15,5 +15,5 @@ class Player1(Player): #inherit
     def get_move(self):
         pass
     
-    def delete_this_function(self): # delete this file
+    def delete_this_function(self): 
         pass
