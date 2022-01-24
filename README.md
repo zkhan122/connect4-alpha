@@ -1,2 +1,6 @@
-# connect4-alpha
-connect 4 game 
+Connect 4 game with AI. 
+
+Implementations tbc:
+- Online
+- Login form + database
+- menus
