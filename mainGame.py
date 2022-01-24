@@ -5,7 +5,7 @@ import numpy as np
 
 class Connect4():
 
-    def __init__(self, ROW_COUNT, COL_COUNT): # zayaan 
+    def __init__(self, ROW_COUNT, COL_COUNT): # # accessed in line 38
         self.winning_move = None
         self.game_over = False
 
