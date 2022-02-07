@@ -1,4 +1,4 @@
-import numpy as np    
+import numpy as np    # import 
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
