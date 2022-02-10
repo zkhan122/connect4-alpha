@@ -54,44 +54,49 @@ def winning_move(board, piece):
                     return True
 
 
-board = create_board()
-game_over = False
-turn = 0
-print(board)
 
 
+def play(board, player_one, player_two, print_game=True):
 
-while not game_over:
+    game_over = False
+    turn = 0 # player 1
 
-    if turn == 0:
-        col = int(input("Player 1 Make your Selection (0-6): "))
+    if print_game:
+        print_board(board)
 
-        if is_valid_location(board, col):
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 1)
+    while not game_over:
 
-            if winning_move(board, 1):
-                print("Player 1 Wins! Congrats!")
-                game_over = True
-    
-    else:
-        col = int(input("Player 2 Make your Selection (0-6): "))
+        if turn == 0:
+            col = int(input("Player 1 Make your Selection (0-6): "))
 
-        if is_valid_location(board, col):
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 2)
+            if is_valid_location(board, col):
+                row = get_next_open_row(board, col)
+                drop_piece(board, row, col, 1)
 
-            if winning_move(board, 2):
-                print("Player 2 Wins! Congrats!")
-                game_over = True
+                if winning_move(board, 1):
+                    print("Player 1 Wins! Congrats!")
+                    game_over = True
+        
+        else:
+            col = int(input("Player 2 Make your Selection (0-6): "))
 
-			
-    print_board(board)
-    
-    turn += 1
-    turn = turn % 2
+            if is_valid_location(board, col):
+                row = get_next_open_row(board, col)
+                drop_piece(board, row, col, 2)
+
+                if winning_move(board, 2):
+                    print("Player 2 Wins! Congrats!")
+                    game_over = True
+
+                
+        print_board(board)
+        
+        turn += 1
+        turn = turn % 2
 
 
 if __name__ == '__main__':
-    player1 = RandomPlayer(1)
-    player2 = RandomPlayer(2)
+    board = create_board()
+    player_1 = RandomPlayer(1)
+    player_2 = RandomPlayer(2)
+    play(board, player_1, player_2, print_game=True)
