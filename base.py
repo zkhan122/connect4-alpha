@@ -1,4 +1,5 @@
 import numpy as np    
+from player import *
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
