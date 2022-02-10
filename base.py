@@ -1,5 +1,7 @@
 import numpy as np    
+import math
 from player import *
+
 
 ROW_COUNT = 6
 COLUMN_COUNT = 7
@@ -57,6 +59,8 @@ game_over = False
 turn = 0
 print(board)
 
+
+
 while not game_over:
 
     if turn == 0:
@@ -81,10 +85,13 @@ while not game_over:
                 print("Player 2 Wins! Congrats!")
                 game_over = True
 
-				
-
+			
     print_board(board)
     
     turn += 1
     turn = turn % 2
 
+
+if __name__ == '__main__':
+    player1 = RandomPlayer(1)
+    player2 = RandomPlayer(2)
