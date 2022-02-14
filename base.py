@@ -14,7 +14,8 @@ def drop_piece(board, row, col, piece):
     board[row][col] = piece
 
 def is_valid_location(board, col):
-    return board[ROW_COUNT-1][col] == 0
+    return board[ROW_COUNT-1][col] == 0 # check if space is empty
+
 
 def get_next_open_row(board, col):
     for r in range(ROW_COUNT):
@@ -76,6 +77,10 @@ def play(board, player_one, player_two, print_game=True):
                 if winning_move(board, 1):
                     print("Player 1 Wins! Congrats!")
                     game_over = True
+
+            else:
+                print("Space Taken! .. Enter again.")
+                turn -= 1
         
         else:
             col = int(input("Player 2 Make your Selection (0-6): "))
@@ -87,6 +92,11 @@ def play(board, player_one, player_two, print_game=True):
                 if winning_move(board, 2):
                     print("Player 2 Wins! Congrats!")
                     game_over = True
+            
+            else:
+                print("Space Taken! .. Enter again.")
+                turn -= 1
+            
 
                 
         print_board(board)
