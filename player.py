@@ -1,8 +1,9 @@
 import math
 import numpy as np
-from base import *
 
-class Player:
+
+
+class Player():
     def __init__(self, turn):
         self.turn = turn
     
@@ -17,11 +18,10 @@ class RandomPlayer(Player): # inherit
         valid_move = False
         val = None
         while not valid_move:
-            move = input(self.turn + '\'s turn. Input move from (0-6: ')
-            try:
-                val = int(move)
-                if val is not is_valid_location(self, col):
-                    raise ValueError
-            except ValueError:
-                print("Invalid move. Please try again")
+            move = input(self.turn + '\'s turn. Input move from (0-6) : ')
+            val = int(move)
+            if val < 0 or val > 6:
+                print("Invalid move ")
+                continue
+
         return val
