@@ -1,3 +1,4 @@
+from cProfile import label
 import numpy as np    
 import pygame
 import sys
@@ -10,25 +11,28 @@ ROW_COUNT = 6
 COLUMN_COUNT = 7
 square_size = 100 # in px - GUI
 width = COLUMN_COUNT * square_size 
-height = (ROW_COUNT+1) * square_size + 20
+height = (ROW_COUNT+1) * square_size 
 radius = int(square_size / 2 - 5) 
 
 color_blue = (23,64,154) # rgb
 color_black = (0, 0, 0)
 color_white = (255,255,255)
+color_red = (195, 48, 48)
+color_yellow = (209, 183, 15)
 
 size = (width, height)
 
 pygame.font.init()
 font = pygame.font.SysFont("Lexend Deca", 30) # font
+winning_font = pygame.font.SysFont("Lexend Deca", 100) # winning move font
 
 
-# image processing
-img1 = pygame.image.load("C:\\Users\\ayesh\\OneDrive\\Pictures\\nea\\p1.jpg")
-img1 = pygame.transform.scale(img1, (30, 30))
+# # image processing
+# img1 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p1.jpg")
+# img1 = pygame.transform.scale(img1, (30, 30))
 
-img2 = pygame.image.load("C:\\Users\\ayesh\\OneDrive\\Pictures\\nea\\p2.jpg")
-img2 = pygame.transform.scale(img2, (30, 30))
+# img2 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p2.jpg")
+# img2 = pygame.transform.scale(img2, (30, 30))
 
 
 def create_board():
@@ -83,10 +87,22 @@ def draw_board(board, screen):
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
             pygame.draw.rect(screen, color_blue, (c * square_size, r * square_size+square_size, square_size*4, square_size) )
-            pygame.draw.circle(screen, color_black, (int(c * square_size + square_size / 2), int(r * square_size + square_size + square_size / 2)), radius)
 
+           # if board[r][c] == 0: # if empty space
+            pygame.draw.circle(screen, color_black, (int(c * square_size + square_size / 2), 
+            int(r * square_size + square_size + square_size / 2)), radius)
+   
+    for c in range(COLUMN_COUNT):
+        for r in range(ROW_COUNT):
+            if board[r][c] == 1: # player 1 - red
+                pygame.draw.circle(screen, color_red, ( int(c * square_size + square_size / 2), 
+                height - int(r * square_size + square_size / 2) ), radius) 
 
+            elif board[r][c] == 2:
+                pygame.draw.circle(screen, color_yellow, ( int(c * square_size + square_size / 2), 
+                height - int(r * square_size + square_size / 2) ), radius)
 
+    pygame.display.update()
 
 def play(board, player_one, player_two, print_game=True):
 
@@ -103,13 +119,6 @@ def play(board, player_one, player_two, print_game=True):
 
     draw_board(board, screen)
 
-    text_1 = font.render("Player 1", True, color_white)
-    screen.blit(text_1, (10, 10))
-    screen.blit(img1, (100, 5))
-
-    text_2 = font.render("Player 2", True, color_white)
-    screen.blit(text_2, (610, 10))
-    screen.blit(img2, (570, 5))
 
     pygame.display.update() # update window
 
@@ -123,45 +132,84 @@ def play(board, player_one, player_two, print_game=True):
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pass
+            if event.type == pygame.MOUSEMOTION:
+                pygame.draw.rect(screen, color_black, (0, 0, width, square_size))
+                # image processing
+                img1 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p1.jpg")
+                img1 = pygame.transform.scale(img1, (30, 30))
 
-                # if turn == 0: # player 1 
-                #     col = int(input("Player 1 Make your Selection (0-6): "))
+                img2 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p2.jpg")
+                img2 = pygame.transform.scale(img2, (30, 30))
 
-                #     if is_valid_location(board, col):
-                #         row = get_next_open_row(board, col)
-                #         drop_piece(board, row, col, 1)
+                text_1 = font.render("Player 1", True, color_white)
+                screen.blit(text_1, (10, 10))
+                screen.blit(img1, (100, 5))
 
-                #         if winning_move(board, 1):
-                #             print("Player 1 Wins! Congrats!")
-                #             game_over = True
+                text_2 = font.render("Player 2", True, color_white)
+                screen.blit(text_2, (610, 10))
+                screen.blit(img2, (570, 5))
 
-                #     else:
-                #         print("Space Taken! .. Enter again.")
-                #         turn -= 1
                 
-                # else:
-                #     col = int(input("Player 2 Make your Selection (0-6): "))
+                posX = event.pos[0]
+                if turn == 0:
+                    pygame.draw.circle(screen, color_red, (posX, int(square_size/2)), radius)
+                
+                else:
+                    pygame.draw.circle(screen, color_yellow, (posX, int(square_size/2)), radius)
+                pygame.display.update()
 
-                #     if is_valid_location(board, col):
-                #         row = get_next_open_row(board, col)
-                #         drop_piece(board, row, col, 2)
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                print(event.pos)
 
-                #         if winning_move(board, 2):
-                #             print("Player 2 Wins! Congrats!")
-                #             game_over = True
+                # player 1 
+                if turn == 0: 
+                    posX = event.pos[0] 
+                    col = int(math.floor(posX / square_size)) # divide by 100
+
+                    if is_valid_location(board, col):
+                        row = get_next_open_row(board, col)
+                        drop_piece(board, row, col, 1)
+
+                        if winning_move(board, 1):
+                           # print("Player 1 Wins! Congrats!")
+                           winning_text = winning_font.render("Player 1 Wins! ", 1, color_red)
+                           screen.blit(winning_text, (150, 70))
+                           game_over = True
+
+                    # del when needed
+                    else:
+                        print("Space Taken! .. Enter again.")
+                        turn -= 1
+                
+                # player 2 
+                else:
+                    posX = event.pos[0]
+                    col = int(math.floor(posX / square_size))
+
+                    if is_valid_location(board, col):
+                        row = get_next_open_row(board, col)
+                        drop_piece(board, row, col, 2)
+
+                        if winning_move(board, 2):
+                            # print("Player 2 Wins! Congrats!")
+                            winning_text = winning_font.render("Player 2 Wins! ", 1, color_yellow)
+                            screen.blit(winning_text, (150, 70))
+                            game_over = True
                     
-                #     else:
-                #         print("Space Taken! .. Enter again.")
-                #         turn -= 1
+                    else:
+                        print("Space Taken! .. Enter again.")
+                        turn -= 1
                     
 
                         
-                # print_board(board)
+                print_board(board)
+                draw_board(board, screen)
                 
-                # turn += 1
-                # turn = turn % 2
+                turn += 1
+                turn = turn % 2
+
+                if game_over:
+                    pygame.time.wait(3000)
 
 
 if __name__ == '__main__':
