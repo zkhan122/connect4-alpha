@@ -5,6 +5,7 @@ import sys
 import tkinter as ttk
 import math
 from player import *
+from PIL import Image
 
 
 ROW_COUNT = 6
@@ -24,15 +25,21 @@ size = (width, height)
 
 pygame.font.init()
 font = pygame.font.SysFont("Lexend Deca", 30) # font
-winning_font = pygame.font.SysFont("Lexend Deca", 100) # winning move font
+winning_font = pygame.font.SysFont("Lexend Deca", 70) # winning move font
 
+# image processing
+img1 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p1.jpg")
+img1 = pygame.transform.scale(img1, (30, 30))
 
-# # image processing
-# img1 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p1.jpg")
-# img1 = pygame.transform.scale(img1, (30, 30))
+img2 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p2.jpg")
+img2 = pygame.transform.scale(img2, (30, 30))
 
-# img2 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p2.jpg")
-# img2 = pygame.transform.scale(img2, (30, 30))
+end_gameImg = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\gameOverimg.png")
+end_gameImg = pygame.transform.scale(end_gameImg, (500, 100))
+
+text_1 = font.render("Player 1", True, color_white)
+text_2 = font.render("Player 2", True, color_white)
+
 
 
 def create_board():
@@ -135,21 +142,12 @@ def play(board, player_one, player_two, print_game=True):
             if event.type == pygame.MOUSEMOTION:
                 pygame.draw.rect(screen, color_black, (0, 0, width, square_size))
                 # image processing
-                img1 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p1.jpg")
-                img1 = pygame.transform.scale(img1, (30, 30))
-
-                img2 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p2.jpg")
-                img2 = pygame.transform.scale(img2, (30, 30))
-
-                text_1 = font.render("Player 1", True, color_white)
                 screen.blit(text_1, (10, 10))
                 screen.blit(img1, (100, 5))
 
-                text_2 = font.render("Player 2", True, color_white)
                 screen.blit(text_2, (610, 10))
                 screen.blit(img2, (570, 5))
 
-                
                 posX = event.pos[0]
                 if turn == 0:
                     pygame.draw.circle(screen, color_red, (posX, int(square_size/2)), radius)
@@ -158,7 +156,18 @@ def play(board, player_one, player_two, print_game=True):
                     pygame.draw.circle(screen, color_yellow, (posX, int(square_size/2)), radius)
                 pygame.display.update()
 
+
+
             if event.type == pygame.MOUSEBUTTONDOWN:
+                pygame.draw.rect(screen, color_black, (0, 0, width, square_size))
+                pygame.draw.rect(screen, color_black, (160, 400, width, square_size))
+
+                screen.blit(text_1, (10, 10))
+                screen.blit(img1, (100, 5))
+
+                screen.blit(text_2, (610, 10))
+                screen.blit(img2, (570, 5))
+
                 print(event.pos)
 
                 # player 1 
@@ -173,7 +182,9 @@ def play(board, player_one, player_two, print_game=True):
                         if winning_move(board, 1):
                            # print("Player 1 Wins! Congrats!")
                            winning_text = winning_font.render("Player 1 Wins! ", 1, color_red)
-                           screen.blit(winning_text, (150, 70))
+                           pygame.display.update(screen.blit(winning_text, (160, 50)))
+                           pygame.display.update(screen.blit(end_gameImg, (100, width/2)))
+                           pygame.time.wait(5000)
                            game_over = True
 
                     # del when needed
@@ -193,7 +204,9 @@ def play(board, player_one, player_two, print_game=True):
                         if winning_move(board, 2):
                             # print("Player 2 Wins! Congrats!")
                             winning_text = winning_font.render("Player 2 Wins! ", 1, color_yellow)
-                            screen.blit(winning_text, (150, 70))
+                            pygame.display.update(screen.blit(winning_text, (160, 50)))
+                            pygame.display.update(screen.blit(end_gameImg, (100, width/2)))
+                            pygame.time.wait(5000)
                             game_over = True
                     
                     else:
@@ -209,7 +222,7 @@ def play(board, player_one, player_two, print_game=True):
                 turn = turn % 2
 
                 if game_over:
-                    pygame.time.wait(3000)
+                    pygame.time.wait(3000) # time until exit
 
 
 if __name__ == '__main__':
