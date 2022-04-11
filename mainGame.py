@@ -1,10 +1,12 @@
+from player import *
+from menu import *
+
 from cProfile import label
 import numpy as np    
 import pygame
 import sys
 import tkinter as ttk
 import math
-from player import *
 from PIL import Image
 
 
@@ -120,11 +122,14 @@ def play(board, player_one, player_two, print_game=True):
 
   
     # set title
-    pygame.display.set_caption("Connect 4!")
+    pygame.display.set_caption("Connect 4 Alpha!")
 
     screen = pygame.display.set_mode(size)
 
+
     draw_board(board, screen)
+    
+    menu = Menu(screen)
 
 
     pygame.display.update() # update window
