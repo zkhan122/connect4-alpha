@@ -1,6 +1,4 @@
 from player import *
-from menu import *
-
 from cProfile import label
 import numpy as np    
 import pygame
@@ -8,6 +6,7 @@ import sys
 import tkinter as ttk
 import math
 from PIL import Image
+import random
 
 
 ROW_COUNT = 6
@@ -30,18 +29,28 @@ font = pygame.font.SysFont("Lexend Deca", 30) # font
 winning_font = pygame.font.SysFont("Lexend Deca", 70) # winning move font
 
 # image processing
-img1 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p1.jpg")
+# C:\\Users\\ayesh\\OneDrive\\Documents\\Zayaan\\code base\\nea
+img1 = pygame.image.load("C:\\Users\\ayesh\\OneDrive\\Documents\\Zayaan\\code base\\nea\\p1.jpg")
 img1 = pygame.transform.scale(img1, (30, 30))
 
-img2 = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\p2.jpg")
+img2 = pygame.image.load("C:\\Users\\ayesh\\OneDrive\\Documents\\Zayaan\\code base\\nea\\p2.jpg")
 img2 = pygame.transform.scale(img2, (30, 30))
 
-end_gameImg = pygame.image.load("C:\\Users\\zayaa\\Documents\\Zayaan\\code base\\nea\\gameOverimg.png")
+end_gameImg = pygame.image.load("C:\\Users\\ayesh\\OneDrive\\Documents\\Zayaan\\code base\\nea\\gameOverimg.png")
 end_gameImg = pygame.transform.scale(end_gameImg, (500, 100))
 
 text_1 = font.render("Player 1", True, color_white)
 text_2 = font.render("Player 2", True, color_white)
 
+# game variables
+PLAYER = 0
+AI = 1
+
+PLAYER_PIECE = 1
+AI_PIECE = 2
+
+CONNECT_LENGTH = 4
+EMPTY = 0
 
 
 def create_board():
@@ -92,6 +101,47 @@ def winning_move(board, piece):
                 if board[r-2][c+2] and board[r-3][c+3] == piece:
                     return True
 
+
+def score_position(board, piece):
+    # score horizontal
+    score = 0
+    for r in range(ROW_COUNT):
+        row_array = [int(i) for i in list(board[r, :])]
+        for c in range(COLUMN_COUNT-3):
+            connect = row_array[c : c + CONNECT_LENGTH]
+            if connect.count(piece) == CONNECT_LENGTH:
+                score += 100 
+            elif connect.count(piece) == 3 and score.count(EMPTY) == 1:
+                score += 10
+
+    return score
+    
+
+def get_valid_locations(board):
+    valid_locations = []
+    for col in range(COLUMN_COUNT):
+        if is_valid_location(board, col):
+            valid_locations.append(col)
+    
+    return valid_locations
+
+def pick_best_move(board, piece):
+
+    valid_locations = get_valid_locations(board)
+    best_score = 0
+    best_col = random.choice(valid_locations)
+    for col in valid_locations:
+        row = get_next_open_row(board, col)
+        temp_board = board.copy()
+        drop_piece(temp_board, row, col, piece)
+        score = score_position(temp_board, piece)
+        if score > best_score:
+            best_score = score
+            best_col = col
+
+    return best_col
+
+
 def draw_board(board, screen):
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
@@ -103,11 +153,11 @@ def draw_board(board, screen):
    
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
-            if board[r][c] == 1: # player 1 - red
+            if board[r][c] == PLAYER_PIECE: # player 1 - red
                 pygame.draw.circle(screen, color_red, ( int(c * square_size + square_size / 2), 
                 height - int(r * square_size + square_size / 2) ), radius) 
 
-            elif board[r][c] == 2:
+            elif board[r][c] == AI_PIECE:
                 pygame.draw.circle(screen, color_yellow, ( int(c * square_size + square_size / 2), 
                 height - int(r * square_size + square_size / 2) ), radius)
 
@@ -116,7 +166,7 @@ def draw_board(board, screen):
 def play(board, player_one, player_two, print_game=True):
 
     game_over = False
-    turn = 0 # player 1
+    turn = random.randint(PLAYER, AI) # player 1
 
     pygame.init() # initialize pygame
 
@@ -128,8 +178,6 @@ def play(board, player_one, player_two, print_game=True):
 
 
     draw_board(board, screen)
-    
-    menu = Menu(screen)
 
 
     pygame.display.update() # update window
@@ -176,15 +224,15 @@ def play(board, player_one, player_two, print_game=True):
                 print(event.pos)
 
                 # player 1 
-                if turn == 0: 
+                if turn == PLAYER: 
                     posX = event.pos[0] 
                     col = int(math.floor(posX / square_size)) # divide by 100
 
                     if is_valid_location(board, col):
                         row = get_next_open_row(board, col)
-                        drop_piece(board, row, col, 1)
+                        drop_piece(board, row, col, PLAYER_PIECE)
 
-                        if winning_move(board, 1):
+                        if winning_move(board, PLAYER_PIECE):
                            # print("Player 1 Wins! Congrats!")
                            winning_text = winning_font.render("Player 1 Wins! ", 1, color_red)
                            pygame.display.update(screen.blit(winning_text, (160, 50)))
@@ -192,40 +240,51 @@ def play(board, player_one, player_two, print_game=True):
                            pygame.time.wait(5000)
                            game_over = True
 
+
+
                     # del when needed
                     else:
                         print("Space Taken! .. Enter again.")
                         turn -= 1
+
+                    turn += 1
+                    turn = turn % 2
+
+                    print_board(board)
+                    draw_board(board, screen)
+
                 
-                # player 2 
-                else:
-                    posX = event.pos[0]
-                    col = int(math.floor(posX / square_size))
+            # ai
+            if turn == AI and not game_over:
+             #   col = random.randint(0, COLUMN_COUNT-1)
+                col = pick_best_move(board, AI_PIECE)
+                pygame.display.update()
 
-                    if is_valid_location(board, col):
-                        row = get_next_open_row(board, col)
-                        drop_piece(board, row, col, 2)
+                if is_valid_location(board, col):
+                    pygame.time.wait(500)
+                    row = get_next_open_row(board, col)
+                    drop_piece(board, row, col, AI_PIECE)
 
-                        if winning_move(board, 2):
-                            # print("Player 2 Wins! Congrats!")
-                            winning_text = winning_font.render("Player 2 Wins! ", 1, color_yellow)
-                            pygame.display.update(screen.blit(winning_text, (160, 50)))
-                            pygame.display.update(screen.blit(end_gameImg, (100, width/2)))
-                            pygame.time.wait(5000)
-                            game_over = True
+                    if winning_move(board, AI_PIECE):
+                        # print("Player 2 Wins! Congrats!")
+                        winning_text = winning_font.render("Player 2 Wins! ", 1, color_yellow)
+                        pygame.display.update(screen.blit(winning_text, (160, 50)))
+                        pygame.display.update(screen.blit(end_gameImg, (100, width/2)))
+                        pygame.time.wait(5000)
+                        game_over = True
+                    
                     
                     else:
                         print("Space Taken! .. Enter again.")
                         turn -= 1
+                    
                     
 
                         
                 print_board(board)
                 draw_board(board, screen)
-                
-                turn += 1
-                turn = turn % 2
 
+                
                 if game_over:
                     pygame.time.wait(3000) # time until exit
 
