@@ -1,4 +1,5 @@
 from player import *
+from ai import *
 from cProfile import label
 import numpy as np    
 import pygame
@@ -7,6 +8,7 @@ import tkinter as ttk
 import math
 from PIL import Image
 import random
+
 
 
 ROW_COUNT = 6
@@ -102,44 +104,44 @@ def winning_move(board, piece):
                     return True
 
 
-def score_position(board, piece):
-    # score horizontal
-    score = 0
-    for r in range(ROW_COUNT):
-        row_array = [int(i) for i in list(board[r, :])]
-        for c in range(COLUMN_COUNT-3):
-            connect = row_array[c : c + CONNECT_LENGTH]
-            if connect.count(piece) == CONNECT_LENGTH:
-                score += 100 
-            elif connect.count(piece) == 3 and score.count(EMPTY) == 1:
-                score += 10
+# def score_position(board, piece):
+#     # score horizontal
+#     score = 0
+#     for r in range(ROW_COUNT):
+#         row_array = [int(i) for i in list(board[r, :])]
+#         for c in range(COLUMN_COUNT-3):
+#             connect = row_array[c : c + CONNECT_LENGTH]
+#             if connect.count(piece) == CONNECT_LENGTH:
+#                 score += 100 
+#             elif connect.count(piece) == 3 and score.count(EMPTY) == 1:
+#                 score += 10
 
-    return score
+#     return score
     
 
-def get_valid_locations(board):
-    valid_locations = []
-    for col in range(COLUMN_COUNT):
-        if is_valid_location(board, col):
-            valid_locations.append(col)
+# def get_valid_locations(board):
+#     valid_locations = []
+#     for col in range(COLUMN_COUNT):
+#         if is_valid_location(board, col):
+#             valid_locations.append(col)
     
-    return valid_locations
+#     return valid_locations
 
-def pick_best_move(board, piece):
+# def pick_best_move(board, piece):
 
-    valid_locations = get_valid_locations(board)
-    best_score = 0
-    best_col = random.choice(valid_locations)
-    for col in valid_locations:
-        row = get_next_open_row(board, col)
-        temp_board = board.copy()
-        drop_piece(temp_board, row, col, piece)
-        score = score_position(temp_board, piece)
-        if score > best_score:
-            best_score = score
-            best_col = col
+#     valid_locations = get_valid_locations(board)
+#     best_score = 0
+#     best_col = random.choice(valid_locations)
+#     for col in valid_locations:
+#         row = get_next_open_row(board, col)
+#         temp_board = board.copy()
+#         drop_piece(temp_board, row, col, piece)
+#         score = score_position(temp_board, piece)
+#         if score > best_score:
+#             best_score = score
+#             best_col = col
 
-    return best_col
+#     return best_col
 
 
 def draw_board(board, screen):
@@ -257,7 +259,7 @@ def play(board, player_one, player_two, print_game=True):
             # ai
             if turn == AI and not game_over:
              #   col = random.randint(0, COLUMN_COUNT-1)
-                col = pick_best_move(board, AI_PIECE)
+                col = randomAI.pick_best_move(AI_PIECE)
                 pygame.display.update()
 
                 if is_valid_location(board, col):
@@ -293,4 +295,5 @@ if __name__ == '__main__':
     board = create_board()
     player_1 = RandomPlayer(1)
     player_2 = RandomPlayer(2)
+    randomAI = RandomAI(board)
     play(board, player_1, player_2, print_game=True)
