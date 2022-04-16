@@ -79,69 +79,31 @@ def winning_move(board, piece):
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT):
             if board[r][c] == piece and board[r][c+1] == piece:
-                if board[r][c+2] and board[r][c+3] == piece:
+                if board[r][c+2] == piece and board[r][c+3] == piece:
                     return True
 
     # check for vertical locations for a win
     for c in range(COLUMN_COUNT):
-        for r in range(ROW_COUNT - 2):
+        for r in range(ROW_COUNT - 3):
             if board[r][c] == piece and board[r+1][c] == piece:
-                if board[r+2][c] and board[r+3][c] == piece:
+                if board[r+2][c] == piece and board[r+3][c] == piece:
                     return True
 
     # check for positively sloped diagonals
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT - 3):
             if board[r][c] == piece and board[r+1][c+1] == piece:
-                if board[r+2][c+2] and board[r+3][c+3] == piece:
+                if board[r+2][c+2] == piece and board[r+3][c+3] == piece:
                     return True
 
     # check for negatively sloped diagonals
     for c in range(COLUMN_COUNT - 3):
         for r in range(3, ROW_COUNT):
             if board[r][c] == piece and board[r-1][c+1] == piece:
-                if board[r-2][c+2] and board[r-3][c+3] == piece:
+                if board[r-2][c+2] == piece and board[r-3][c+3] == piece:
                     return True
 
 
-# def score_position(board, piece):
-#     # score horizontal
-#     score = 0
-#     for r in range(ROW_COUNT):
-#         row_array = [int(i) for i in list(board[r, :])]
-#         for c in range(COLUMN_COUNT-3):
-#             connect = row_array[c : c + CONNECT_LENGTH]
-#             if connect.count(piece) == CONNECT_LENGTH:
-#                 score += 100 
-#             elif connect.count(piece) == 3 and score.count(EMPTY) == 1:
-#                 score += 10
-
-#     return score
-    
-
-# def get_valid_locations(board):
-#     valid_locations = []
-#     for col in range(COLUMN_COUNT):
-#         if is_valid_location(board, col):
-#             valid_locations.append(col)
-    
-#     return valid_locations
-
-# def pick_best_move(board, piece):
-
-#     valid_locations = get_valid_locations(board)
-#     best_score = 0
-#     best_col = random.choice(valid_locations)
-#     for col in valid_locations:
-#         row = get_next_open_row(board, col)
-#         temp_board = board.copy()
-#         drop_piece(temp_board, row, col, piece)
-#         score = score_position(temp_board, piece)
-#         if score > best_score:
-#             best_score = score
-#             best_col = col
-
-#     return best_col
 
 
 def draw_board(board, screen):
@@ -259,7 +221,9 @@ def play(board, player_one, player_two, print_game=True):
             # ai
             if turn == AI and not game_over:
              #   col = random.randint(0, COLUMN_COUNT-1)
-                col = randomAI.pick_best_move(AI_PIECE)
+             #   col = randomAI.pick_best_move(AI_PIECE)
+                col, minimax_score = randomAI.minimax(board, 3, True) # depth = 2nd parameter
+
                 pygame.display.update()
 
                 if is_valid_location(board, col):
@@ -280,9 +244,7 @@ def play(board, player_one, player_two, print_game=True):
                         print("Space Taken! .. Enter again.")
                         turn -= 1
                     
-                    
-
-                        
+                
                 print_board(board)
                 draw_board(board, screen)
 
