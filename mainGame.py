@@ -104,6 +104,127 @@ def winning_move(board, piece):
                     return True
 
 
+def evaluate_window(window, piece):
+	score = 0
+	opp_piece = PLAYER_PIECE
+	if piece == PLAYER_PIECE:
+		opp_piece = AI_PIECE
+
+	if window.count(piece) == 4:
+		score += 100
+	elif window.count(piece) == 3 and window.count(EMPTY) == 1:
+		score += 5
+	elif window.count(piece) == 2 and window.count(EMPTY) == 2:
+		score += 2
+
+	if window.count(opp_piece) == 3 and window.count(EMPTY) == 1:
+		score -= 4
+
+	return score
+
+def score_position(board, piece):
+	score = 0
+
+	## Score center column
+	center_array = [int(i) for i in list(board[:, COLUMN_COUNT//2])]
+	center_count = center_array.count(piece)
+	score += center_count * 3
+
+	## Score Horizontal
+	for r in range(ROW_COUNT):
+		row_array = [int(i) for i in list(board[r,:])]
+		for c in range(COLUMN_COUNT-3):
+			window = row_array[c:c+CONNECT_LENGTH]
+			score += evaluate_window(window, piece)
+
+	## Score Vertical
+	for c in range(COLUMN_COUNT):
+		col_array = [int(i) for i in list(board[:,c])]
+		for r in range(ROW_COUNT-3):
+			window = col_array[r:r+CONNECT_LENGTH]
+			score += evaluate_window(window, piece)
+
+	## Score posiive sloped diagonal
+	for r in range(ROW_COUNT-3):
+		for c in range(COLUMN_COUNT-3):
+			window = [board[r+i][c+i] for i in range(CONNECT_LENGTH)]
+			score += evaluate_window(window, piece)
+
+	for r in range(ROW_COUNT-3):
+		for c in range(COLUMN_COUNT-3):
+			window = [board[r+3-i][c+i] for i in range(CONNECT_LENGTH)]
+			score += evaluate_window(window, piece)
+
+	return score
+
+def is_terminal_node(board):
+	return winning_move(board, PLAYER_PIECE) or winning_move(board, AI_PIECE) or len(get_valid_locations(board)) == 0
+
+def minimax(board, depth, maximizingPlayer):
+	valid_locations = get_valid_locations(board)
+	is_terminal = is_terminal_node(board)
+	if depth == 0 or is_terminal:
+		if is_terminal:
+			if winning_move(board, AI_PIECE):
+				return (None, 100000000000000)
+			elif winning_move(board, PLAYER_PIECE):
+				return (None, -10000000000000)
+			else: # Game is over, no more valid moves
+				return (None, 0)
+		else: # Depth is zero
+			return (None, score_position(board, AI_PIECE))
+	if maximizingPlayer:
+		value = -math.inf
+		column = random.choice(valid_locations)
+		for col in valid_locations:
+			row = get_next_open_row(board, col)
+			b_copy = board.copy()
+			drop_piece(b_copy, row, col, AI_PIECE)
+			new_score = minimax(b_copy, depth-1, False)[1]
+			if new_score > value:
+				value = new_score
+				column = col
+
+		return column, value
+
+	else: # Minimizing player
+		value = math.inf
+		column = random.choice(valid_locations)
+		for col in valid_locations:
+			row = get_next_open_row(board, col)
+			b_copy = board.copy()
+			drop_piece(b_copy, row, col, PLAYER_PIECE)
+			new_score = minimax(b_copy, depth-1, True)[1]
+			if new_score < value:
+				value = new_score
+				column = col
+
+		return column, value
+
+def get_valid_locations(board):
+	valid_locations = []
+	for col in range(COLUMN_COUNT):
+		if is_valid_location(board, col):
+			valid_locations.append(col)
+	return valid_locations
+
+def pick_best_move(board, piece):
+
+	valid_locations = get_valid_locations(board)
+	best_score = -10000
+	best_col = random.choice(valid_locations)
+	for col in valid_locations:
+		row = get_next_open_row(board, col)
+		temp_board = board.copy()
+		drop_piece(temp_board, row, col, piece)
+		score = score_position(temp_board, piece)
+		if score > best_score:
+			best_score = score
+			best_col = col
+
+	return best_col
+
+
 
 
 def draw_board(board, screen):
@@ -205,24 +326,18 @@ def play(board, player_one, player_two, print_game=True):
                            game_over = True
 
 
+                        turn += 1
+                        turn = turn % 2
 
-                    # del when needed
-                    else:
-                        print("Space Taken! .. Enter again.")
-                        turn -= 1
-
-                    turn += 1
-                    turn = turn % 2
-
-                    print_board(board)
-                    draw_board(board, screen)
+                        print_board(board)
+                        draw_board(board, screen)
 
                 
             # ai
             if turn == AI and not game_over:
              #   col = random.randint(0, COLUMN_COUNT-1)
              #   col = randomAI.pick_best_move(AI_PIECE)
-                col, minimax_score = randomAI.minimax(board, 3, True) # depth = 2nd parameter
+                col, minimax_score = minimax(board, 3, True) # depth = 2nd parameter
 
                 pygame.display.update()
 
@@ -240,22 +355,23 @@ def play(board, player_one, player_two, print_game=True):
                         game_over = True
                     
                     
-                    else:
-                        print("Space Taken! .. Enter again.")
-                        turn -= 1
-                    
                 
-                print_board(board)
-                draw_board(board, screen)
+                    print_board(board)
+                    draw_board(board, screen)
+
+                    turn += 1
+                    turn = turn % 2
 
                 
                 if game_over:
                     pygame.time.wait(3000) # time until exit
 
 
+
+
 if __name__ == '__main__':
     board = create_board()
     player_1 = RandomPlayer(1)
     player_2 = RandomPlayer(2)
-    randomAI = RandomAI(board)
+  #  randomAI = RandomAI(board)
     play(board, player_1, player_2, print_game=True)
