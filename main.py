@@ -4,6 +4,9 @@ import pygame
 import math
 import sys
 from pygame.locals import *
+import tkinter
+from tkinter import messagebox 
+import sqlite3
 
 class Game():
     
@@ -24,19 +27,26 @@ class Game():
         self.menu_img4 = pygame.image.load("C:\\Users\\ayesh\OneDrive\\Documents\\Zayaan\\code base\\nea\\aboutButtonimg.JPG")
         self.menu_img5 = pygame.image.load("C:\\Users\\ayesh\OneDrive\\Documents\\Zayaan\\code base\\nea\\quitButtonimg.JPG")
         self.menu_img6 = pygame.image.load("C:\\Users\\ayesh\OneDrive\\Documents\\Zayaan\\code base\\nea\\logo.JPG")
-    
 
  
+
+ ## menu
+
+
     def draw_text(self, text, font, color, surface, x, y):
         textobj = self.font.render(text, 1, color)
         textrect = textobj.get_rect()
         textrect.topleft = (x, y)
         surface.blit(textobj, textrect)
     
-    click = False
 
     def main_menu(self):
+ 
+
+        click = False
+
         while True:
+
     
             self.screen.fill((0,0,0))
           #  self.draw_text("Connect 4 Alpha!", self.font, (255, 255, 255), self.screen, 200, 20)
@@ -127,7 +137,7 @@ class Game():
         while running:
             self.screen.fill((0,0,0))
     
-            self.draw_text("vs Online!", self.font, (255, 255, 255), self.screen, 20, 20)
+            self.draw_text("work in progress!", self.font, (255, 255, 255), self.screen, 200, 250)
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
@@ -147,6 +157,8 @@ class Game():
             self.screen.fill((0,0,0))
     
             self.draw_text("Help!", self.font, (255, 255, 255), self.screen, 20, 20)
+            self.draw_text("-click on a button to start", self.font, (255, 255, 255), self.screen, 160, 250)
+            self.draw_text("-press ESC to back out", self.font, (255, 255, 255), self.screen, 160, 300)
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
@@ -166,6 +178,9 @@ class Game():
             self.screen.fill((0,0,0))
     
             self.draw_text("About!", self.font, (255, 255, 255), self.screen, 20, 20)
+            self.draw_text("Connect 4 game with AI", self.font, (255, 255, 255), self.screen, 160, 250)
+            self.draw_text("as part of school project", self.font, (255, 255, 255), self.screen, 160, 300)
+            self.draw_text("Developed by: Zayaan Khan", self.font, (255, 255, 255), self.screen, 130, 530)
             for event in pygame.event.get():
                 if event.type == QUIT:
                     pygame.quit()
@@ -186,16 +201,9 @@ class Game():
             self.screen.fill((0,0,0))
     
             self.draw_text("Quit!", self.font, (255, 255, 255), self.screen, 20, 20)
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == KEYDOWN:
-                    if event.key == K_ESCAPE:
-                        running = False
-            
-            pygame.display.update()
-            self.mainClock.tick(60)
+            pygame.time.wait(1000) # 1 sec delay 
+            sys.exit()
+
 
 
 ###############
@@ -238,6 +246,36 @@ class Game():
                     screen.blit(text_2, (610, 10))
                     screen.blit(img2, (570, 5))
 
+                    # # timer
+                    
+                    # clock = pygame.time.Clock()
+                    # font = pygame.font.SysFont(None, 100)
+                    # counter = 300 # seconds
+                    # text = font.render(str(counter), True, (0, 128, 0))
+
+                    # timer_event = pygame.USEREVENT+1
+                    # pygame.time.set_timer(timer_event, 1000)
+
+                    # run = True
+                    # while run:
+                    #     clock.tick(60)
+                    #     for event in pygame.event.get():
+                    #         if event.type == pygame.QUIT:
+                    #             run = False
+                    #         elif event.type == timer_event:
+                    #             counter -= 1
+                    #             text = font.render(str(counter), True, (0, 128, 0))
+                    #             if counter == 0:
+                    #                 pygame.time.set_timer(timer_event, 0)   
+                                                 
+                    #     screen.fill((0, 0, 0), (300, 0, 300, 100)) # , (x, y, length, width)
+                    #     text_rect = text.get_rect(center = (350, 50))
+                    #     screen.blit(text, text_rect)
+                    #     pygame.display.flip()
+                    #     pygame.display.update()
+
+
+
                     posX = event.pos[0]
                     if turn == 0:
                         pygame.draw.circle(screen, color_red, (posX, int(square_size/2)), radius)
@@ -269,7 +307,7 @@ class Game():
                             row = get_next_open_row(board, col)
                             drop_piece(board, row, col, PLAYER_PIECE)
 
-                            if winning_move(board, PLAYER_PIECE):
+                            if bool(winning_move(board, PLAYER_PIECE)):
                                 # print("Player 1 Wins! Congrats!")
                                 winning_text = winning_font.render("Player 1 Wins! ", 1, color_red)
                                 pygame.display.update(screen.blit(winning_text, (160, 50)))
@@ -277,12 +315,23 @@ class Game():
                                 pygame.time.wait(5000)
                                 game_over = True
 
+                                game.main_menu()
+                                
 
                             turn += 1
                             turn = turn % 2
 
+
                             print_board(board)
                             draw_board(board, screen)
+
+
+                        if game_over:
+                            pygame.time.wait(3000)
+                            sys.exit()
+
+                            
+            
 
                     
                 # ai
@@ -293,7 +342,7 @@ class Game():
 
                     pygame.display.update()
 
-                    if is_valid_location(board, col):
+                    if bool(is_valid_location(board, col)):
                         pygame.time.wait(500)
                         row = get_next_open_row(board, col)
                         drop_piece(board, row, col, AI_PIECE)
@@ -305,19 +354,70 @@ class Game():
                             pygame.display.update(screen.blit(end_gameImg, (100, width/2)))
                             pygame.time.wait(5000)
                             game_over = True
+
+                            game.main_menu()
+
                         
+                        turn += 1
+                        turn = turn % 2
                         
                     
                         print_board(board)
                         draw_board(board, screen)
 
-                        turn += 1
-                        turn = turn % 2
 
                     
                     if game_over:
                         pygame.time.wait(3000) # time until exit
 
+
+    @staticmethod
+    def loginForm():
+        main_window = tkinter.Tk()
+        main_window.title("Login Form")
+        main_window.geometry("400x300")
+        pad = 20
+        main_window["padx"] = pad
+        user_input = tkinter.StringVar()
+        pass_input = tkinter.StringVar()
+        info_label = tkinter.Label(main_window, text= "Login Application")
+        info_label.grid(row=0, column=0, pady = 20)
+
+        #username
+        info_user  = tkinter.Label(main_window, text= "Username: ")
+        info_user.grid(row=1, column=0, pady = 20)
+        userinput = tkinter.Entry(main_window, textvariable=user_input)
+        userinput.grid(row=1, column= 1)
+
+        # password
+        info_pass  = tkinter.Label(main_window, text= "Password: ")
+        info_pass.grid(row=2, column=0, pady = 20)
+        passinput = tkinter.Entry(main_window, textvariable=pass_input, show = "*")
+        passinput.grid(row=2, column= 1)
+
+        login_btn = tkinter.Button(main_window, text =  "Login", command=game.validate_login(user_input, pass_input))
+
+        login_btn.grid(row=3, column=1)
+
+        main_window.mainloop()
+
+    @staticmethod
+    def validate_login(user_input, pass_input):
+        #creating db
+        db = sqlite3.connect("login.sqlite")
+        db.execute("CREATE TABLE IF NOT EXISTS login(username TEXT, password TEXT)") # query
+        db.execute("INSERT INTO login(username, password) VALUES('admin', '123')")
+        cursor = db.cursor() # retrieving record
+        cursor.execute("SELECT * FROM login where username=? AND password=?", (user_input.get(), pass_input.get()))
+
+        row = cursor.fetchone() # return each row in db
+        if row:
+            messagebox.showinfo("info", "Login successful")
+        else:
+            messagebox.showinfo("info", "Login failed")
+         
+        cursor.connection.commit() # saving changes to db
+        db.close() # closing db
 
 
 
@@ -333,6 +433,7 @@ if __name__ == '__main__':
     
    # play(board, player_1, player_2, print_game=True)
     game = Game()
+    game.loginForm()
     game.main_menu()
 
     
