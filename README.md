@@ -1,6 +1,8 @@
 Connect 4 game with AI. 
 
 Implementations tbc:
-- menus
-- Login form + database
-- Online
+- online
+
+
+To run on local machine:
+change all absolute file paths to wherever necessary files are located.
